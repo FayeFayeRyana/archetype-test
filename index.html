@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>皮尔森原型 · 杂志风尚版</title>
+    <style>
+        /* ======================================================
+           杂志风尚 · 高对比 · 衬线字体 + 一抹红
+           ====================================================== */
+        :root {
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --border: #1a1a1a;
+            --primary-red: #d40000;
+            --text-primary: #0a0a0a;
+            --text-secondary: #4a4a4a;
+            --text-light: #7a7a7a;
+            --font-serif: "Times New Roman", Georgia, "Songti SC", serif;
+            --font-sans: -apple-system, "Helvetica Neue", Arial, "PingFang SC", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            padding: 20px 16px 40px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px 20px 28px;
+            border: 1px solid #ddd;
+            box-shadow: none;
+        }
+
+        /* ===== 杂志刊头 ===== */
+        .masthead {
+            text-align: center;
+            border-bottom: 3px double var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+        }
+        .masthead .issue-tag {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .masthead h1 {
+            font-family: var(--font-serif);
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .masthead h1 span { color: var(--primary-red); }
+        .masthead .sub {
+            font-family: var(--font-sans);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .masthead .sub-line {
+            width: 60px;
+            height: 2px;
+            background: var(--primary-red);
+            margin: 8px auto 0;
+        }
+
+        /* ===== 模式切换 ===== */
+        .mode-bar {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0;
+        }
+        .mode-btn {
+            padding: 8px 0 6px;
+            border: none;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .mode-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--primary-red);
+        }
+        .mode-btn:active { opacity: 0.5; }
+
+        .mode-tip {
+            text-align: center;
+            font-family: var(--font-sans);
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            background: var(--bg);
+            padding: 6px 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e8e8e8;
+            text-transform: uppercase;
+        }
+
+        /* ===== 题目卡片 ===== */
+        .question-group {
+            background: var(--card-bg);
+            padding: 16px 12px 10px;
+            margin-bottom: 14px;
+            border-top: 1px solid #e8e8e8;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .group-title {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+        }
+        .group-title .num {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-red);
+            border: 1px solid var(--primary-red);
+            padding: 0 6px;
+            line-height: 20px;
+            border-radius: 0;
+        }
+        .group-title .pname { text-transform: uppercase; font-size: 16px; }
+
+        .row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        @media (min-width: 480px) {
+            .row {
+                flex-direction: row;
+                gap: 20px;
+            }
+            .col { flex: 1; }
+        }
+
+        .col-label {
+            font-family: var(--font-sans);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+            color: var(--text-secondary);
+        }
+        .col-pos .col-label { color: var(--text-primary); }
+        .col-neg .col-label { color: var(--text-light); }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px dotted #eee;
+        }
+        .option-item:last-child { border-bottom: none; }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-primary);
+            flex-shrink: 0;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            border-radius: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background: #fff;
+            position: relative;
+        }
+        .option-item input[type="checkbox"]:checked {
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+        .option-item input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .option-item label {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-primary);
+            cursor: pointer;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== 按钮 ===== */
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+            justify-content: center;
+            border-top: 1px solid #ddd;
+            padding-top: 22px;
+        }
+        .btn {
+            border: 1.5px solid var(--border);
+            border-radius: 0;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 12px 28px;
+            cursor: pointer;
+            transition: 0.15s;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .btn-primary {
+            background: var(--text-primary);
+            color: #fff;
+            border-color: var(--text-primary);
+        }
+        .btn-primary:active { background: #333; }
+        .btn-secondary:active { background: #eee; }
+
+        /* ===== 结果区域 ===== */
+        #resultArea {
+            margin-top: 28px;
+            border-top: 3px double var(--border);
+            padding-top: 24px;
+            display: none;
+        }
+        #resultArea.show { display: block; }
+
+        .result-hero {
+            background: var(--bg);
+            padding: 24px 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .result-hero .big {
+            font-family: var(--font-serif);
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+        .result-hero .big strong { color: var(--primary-red); }
+        .result-hero .trait {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .result-hero .desc {
+            font-family: var(--font-sans);
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* ===== 深度解读区 ===== */
+        .reading-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px 18px;
+            margin: 20px 0 24px;
+            position: relative;
+        }
+        .reading-section .reading-label {
+            font-family: var(--font-sans);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-red);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .reading-section .reading-content {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            text-align: justify;
+        }
+        .reading-section .reading-content .highlight-red {
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+        .reading-section .reading-content .plot-line {
+            display: block;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            border-left: 3px solid var(--primary-red);
+            padding-left: 12px;
+        }
+        .reading-section .reading-content .gift-line {
+            display: block;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--primary-red);
+            margin-bottom: 10px;
+            border-left: 3px solid var(--border);
+            padding-left: 12px;
+        }
+        .reading-section .reading-content .proto-block {
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed #e8e8e8;
+        }
+        .reading-section .reading-content .proto-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .reading-section .reading-content .proto-block .proto-name {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-red);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .chart-wrapper {
+            overflow-x: auto;
+            padding: 12px 4px 4px;
+            background: var(--card-bg);
+            border: 1px solid #e8e8e8;
+        }
+        #chartCanvas {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+            max-width: 680px;
+            background: transparent;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            margin-top: 18px;
+            border: 1px solid var(--border);
+        }
+        .score-table th {
+            background: var(--text-primary);
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 6px;
+            border: 1px solid var(--border);
+        }
+        .score-table td {
+            padding: 10px 6px;
+            text-align: center;
+            border: 1px solid #ddd;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .highlight-row td {
+            background: #f0f0f0 !important;
+            font-weight: 700;
+            border-color: var(--border);
+        }
+
+        /* ===== 页脚 · 公众号专区 ===== */
+        .footer-magazine {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 3px double var(--border);
+            text-align: center;
+        }
+        .footer-magazine .subscribe-title {
+            font-family: var(--font-serif);
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+        }
+        .footer-magazine .subscribe-title span { color: var(--primary-red); }
+        .footer-magazine .divider-line {
+            width: 40px;
+            height: 2px;
+            background: var(--primary-red);
+            margin: 6px auto 10px;
+        }
+
+        .wechat-cta {
+            display: inline-block;
+            background: #ffffff;
+            color: var(--text-primary);
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            padding: 8px 28px;
+            border: 2px solid var(--text-primary);
+            margin-bottom: 16px;
+            text-transform: none;
+            transition: 0.15s;
+        }
+        .wechat-cta i {
+            font-style: normal;
+            color: var(--primary-red);
+            margin-right: 8px;
+        }
+        .wechat-cta:active { background: #f5f5f5; }
+
+        .qr-wrapper {
+            display: none;
+            justify-content: center;
+            margin: 8px 0 12px;
+        }
+        .qr-wrapper img {
+            width: 120px;
+            height: auto;
+            border: 1px solid var(--border);
+            padding: 4px;
+            background: #fff;
+        }
+
+        .legal-note {
+            font-family: var(--font-sans);
+            font-size: 10px;
+            color: var(--text-light);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            line-height: 1.8;
+            margin-top: 8px;
+        }
+        .legal-note strong { color: var(--text-primary); }
+
+        input, button { touch-action: manipulation; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ===== 刊头 ===== -->
+    <div class="masthead">
+        <div class="issue-tag">✦ 内在探索 · 特别策划</div>
+        <h1>THE <span>ARCHETYPE</span></h1>
+        <div class="sub">基于《内在英雄》· 皮尔森心理原型测试</div>
+        <div class="sub-line"></div>
+    </div>
+
+    <!-- ===== 栏目切换 ===== -->
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="self">自我评估</button>
+        <button class="mode-btn" data-mode="other">他人评估</button>
+    </div>
+    <div class="mode-tip" id="modeTip">◈ 请根据「你对自己的看法」勾选</div>
+
+    <!-- ===== 表单 ===== -->
+    <form id="testForm">
+        <div id="questionContainer"></div>
+        <div class="action-bar">
+            <button type="button" class="btn btn-secondary" id="resetBtn">重置</button>
+            <button type="submit" class="btn btn-primary">查看结果</button>
+        </div>
+    </form>
+
+    <!-- ===== 结果 ===== -->
+    <div id="resultArea">
+        <div class="result-hero" id="heroDisplay">
+            <div class="big" id="heroName">——</div>
+            <div class="trait" id="heroTrait">——</div>
+            <div class="desc" id="heroDesc">◈ 主导心理原型</div>
+        </div>
+
+        <!-- 深度解读区 -->
+        <div class="reading-section" id="readingSection">
+            <div class="reading-label">✦ 原型解读 · 引自《内在英雄》</div>
+            <div class="reading-content" id="readingContent">
+                选择你的原型，解锁内在英雄之旅。
+            </div>
+        </div>
+
+        <div class="chart-wrapper"><canvas id="chartCanvas" width="680" height="400"></canvas></div>
+        <table class="score-table" id="scoreTable">
+            <thead><tr><th>原型</th><th>A 积极</th><th>B 消极</th><th>综合</th></tr></thead>
+            <tbody id="scoreBody"></tbody>
+        </table>
+    </div>
+
+    <!-- ===== 页脚 · 公众号专区 ===== -->
+    <div class="footer-magazine">
+        <div class="subscribe-title">✦ 关注 <span>｜</span> 发现更多</div>
+        <div class="divider-line"></div>
+
+        <div class="wechat-cta"><i>◆</i> 关注公众号：飞飞的无龄人生实验</div>
+
+        <div class="qr-wrapper" style="display: none;">
+            <img src="qrcode.jpg" alt="公众号二维码">
+        </div>
+
+        <div class="legal-note">
+            <strong>纯本地计算</strong> · 不留存任何数据 · 公益分享<br>
+            关闭页面即清空，请放心探索。
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ============================================================
+    // 1. 数据（含情节结构 + 天赋 + 书中精华原文）
+    // ============================================================
+    const PROTOTYPES = [
+        {
+            id: 'orphan',
+            name: '孤儿',
+            hero: '摆脱困境，学会生存之道',
+            plot: '我是如何遭受苦难，或如何生存下来。',
+            gift: '弹性适应力',
+            description: '我们渐渐明白，痛苦其实并不是毫无意义的伤害和苦恼，它能够为我们提供强大的动力，督促我们学习、团结和成长。孤儿是一名注定会失望的理想主义者，其对这个世界所希望的越高，出现在他面前的现实就越残忍。孤儿渴望回到最初那种天真的纯真当中，希望生活中能出现一个像深爱我们的妈妈或爸爸一样的角色，满足我们的一切需求。然而，穿越孤儿原型阶段的唯一方法，就是直面自己的痛苦、绝望和内心那些消极的观念，明白这个世界上并没有所谓的绝对安全。只有当我们不再坚持"生活就是受苦受难"或"生活就是伊甸园"这样的极端观点之后，痛苦和磨难就会在不知不觉中改变我们，让我们放弃那些已经不再为我们服务的事物，从而进入前方的未知世界。'
+        },
+        {
+            id: 'wanderer',
+            name: '流浪者',
+            hero: '特立独行，找寻新的自我',
+            plot: '我是如何逃跑，或如何找到自己的路。',
+            gift: '独立',
+            description: '流浪者的故事始于囚禁，而囚禁他们的往往是一种象征：现状、服从，或当时盛行的文化所强加于身的不真实的英雄特征。流浪者的第一项工作就是练就一双火眼金睛，宣布或意识到牢笼的存在，并且明白囚禁他的人是坏蛋。当你拒绝那些不适合你的事物时，让你的思想和好奇心做向导，带领你去探索其他的可能性。寻找让你觉得适合自己、以及能够满足你此时需求的体验和观点。寻找能够和你的天性产生共鸣的人、事和行为，然后投入其中。当我们真正做自己的时候，就再也不会感到孤独了。做好准备，重新回到社会群体中的时候，你往往会惊讶地发现，身边的人和团队竟然都很喜欢那个真实的自己。'
+        },
+        {
+            id: 'warrior',
+            name: '战士',
+            hero: '勇敢奋斗，证明个人价值',
+            plot: '我是如何实现自己的目标，或如何打败自己的敌人。',
+            gift: '勇气',
+            description: '战士的基础就是自豪感和尊严。在受到侮辱后，战士会在月亮升起的时候与侮辱自己的人决战。受到威胁的是一个人的自尊，对于战士而言，最大的耻辱莫过于允许自己受他人践踏，失去尊严。自律也是战士的一个明显特征，它会成为你坚持底线、对抗各种感官欲望的最佳防线。战士告诉我们如何展示自身的力量，以及如何向这个世界证明自己的身份和存在。这种力量可以是外在的力量，也可以是内在的心理能量、智慧能量或是精神力量。然而，傲慢是战士的致命弱点——英雄之所以会从权力的高台上跌落下来，就是因为"过于骄傲"。因此，对于英雄而言，学会谦卑至关重要。最终，战士必须放下对结果的控制欲望，并且意识到自己只是生活舞曲中的一个音节。'
+        },
+        {
+            id: 'altruist',
+            name: '利他主义者',
+            hero: '无私付出，奉献慷慨博爱',
+            plot: '我是如何给予他人，或如何牺牲自己。',
+            gift: '同情心',
+            description: '英雄指的永远都是那些为自己以外的某种事物而活的人。英雄不仅要承受磨难，而且还会在承受磨难的同时一直保持对生活的热爱和勇气，以及爱护他人的能力。无论遭受到怎样的苦难，他们都不会将其再传递给另一个人。他们会接受它，然后宣布："苦难终止于此！"真正的利他主义源自于爱。当我们真的爱一个人的时候，为此人付出就是一种莫大的幸福和快乐。我们根本无须花费所有或一部分时间来向他人证明我们很好。要想让爱具备转变的能量，首先必须先接受爱。在个人野心与慷慨之间找到一个适当的平衡点，最终，我们将会通过自己做出的选择，进一步了解自己的内心世界。'
+        },
+        {
+            id: 'innocent',
+            name: '天真者',
+            hero: '信念至上，收获欢乐幸福',
+            plot: '我是如何找到幸福，或如何找到乐土。',
+            gift: '信仰',
+            description: '我们内心的孩童思想把天堂想象成了一个能够满足我们所有需求以及各种念头的地方。成长则要求我们抛弃这种不切实际的幻想，唯有如此，我们才会努力学习和工作，获得从内在到外在的竞争力装备。决定我们生活的不是那些发生在我们身上的事情，而是我们对这些事情的看法。如果我们选择用欣赏的眼光去看待我们已经拥有的一切，并且让生活中积极的事件和环境引起自己的共鸣，我们就会突然之间变得更加快乐、幸福。当你拒绝那些不适合你的事物时，让你的思想和好奇心做向导，带领你去探索其他的可能性。寻找让你觉得适合自己、以及能够满足你此时需求的体验和观点。'
+        },
+        {
+            id: 'magician',
+            name: '魔法师',
+            hero: '转变生活，创造圆满人生',
+            plot: '我是如何改变自己的世界。',
+            gift: '力量',
+            description: '魔法师原型帮助我们改变自我，从而改变世界。当你不满于现状时，从改变自己开始——从消极因素中发现积极的一面，帮助他人和事物了解自己。做真实的自己，团结与你有相似梦想和价值观的人。同步性——有意义的巧合——真的会发生，而且还会频繁发生。每当我们发现自己生活在一段荒原般的故事中，我们就必须重新踏上旅程，去发现新的可能性。我们可以自主选择生活的世界，这一切都取决于我们对这些事件的理解。魔法师知道：当我们跟随自己的内心，沿着一条真正适合自己的道路前进，我们就能学到成为一名智者所需的全部知识。如果你将痛苦拒之门外，你就把所有的一切都拒之门外了。只有穿越痛苦，允许它进入我们的生活，才能从中学到成长。'
+        }
+    ];
+
+    const QUESTION_DATA = [{
+        prototypeId: 'orphan',
+        positives: ['自我康复能力佳', '幸存者', '现实', '能与他人产生情感共鸣'],
+        negatives: ['多疑', '消极', '愤世嫉俗', '牢骚满腹']
+    }, {
+        prototypeId: 'wanderer',
+        positives: ['个人主义者', '先驱者', '自洽', '与他人意见不一致的思想者'],
+        negatives: ['孤独，不合群', '反叛者', '害怕亲密', '很难适应人或环境']
+    }, {
+        prototypeId: 'warrior',
+        positives: ['极其自信', '胜利者', '自制，训练有素', '意志坚定'],
+        negatives: ['冷酷无情', '竞争意识过强', '固执', '不可变']
+    }, {
+        prototypeId: 'altruist',
+        positives: ['体贴', '有良心，按原则做事', '愿意牺牲', '慷慨'],
+        negatives: ['殉道者', '干预、侵入他人/其他事', '利用罪恶感使他人犯错', '控制欲强']
+    }, {
+        prototypeId: 'innocent',
+        positives: ['乐观', '值得信赖', '对他人深信不疑', '有道理'],
+        negatives: ['会容易受答案误导', '容易受骗或被愚弄', '天真', '伪善']
+    }, {
+        prototypeId: 'magician',
+        positives: ['喜欢幻想', '富有创造力', '强有力的', '变革的催化剂'],
+        negatives: ['过于异想天开', '怪异', '操纵欲强', '过于喜欢冒险']
+    }];
+
+    // ============================================================
+    // 2. 状态
+    // ============================================================
+    let currentMode = 'self';
+
+    // ============================================================
+    // 3. 渲染
+    // ============================================================
+    function renderQuestions() {
+        const container = document.getElementById('questionContainer');
+        container.innerHTML = '';
+
+        QUESTION_DATA.forEach((group, idx) => {
+            const proto = PROTOTYPES.find(p => p.id === group.prototypeId);
+            const div = document.createElement('div');
+            div.className = 'question-group';
+
+            const title = document.createElement('div');
+            title.className = 'group-title';
+            title.innerHTML = `<span class="num">${idx+1}</span><span class="pname">${proto.name}</span>`;
+            div.appendChild(title);
+
+            const row = document.createElement('div');
+            row.className = 'row';
+
+            // A
+            const colA = document.createElement('div');
+            colA.className = 'col col-pos';
+            colA.innerHTML = `<span class="col-label">✦ 积极特质</span>`;
+            group.positives.forEach((text, i) => {
+                const item = document.createElement('div');
+                item.className = 'option-item';
+                const id = `${group.prototypeId}-pos-${i}`;
+                item.innerHTML = `<input type="checkbox" name="${group.prototypeId}-pos" value="${i}" id="${id}"><label for="${id}">${text}</label>`;
+                colA.appendChild(item);
+            });
+            row.appendChild(colA);
+
+            // B
+            const colB = document.createElement('div');
+            colB.className = 'col col-neg';
+            colB.innerHTML = `<span class="col-label">✦ 消极特质</span>`;
+            group.negatives.forEach((text, i) => {
+                const item = document.createElement('div');
+                item.className = 'option-item';
+                const id = `${group.prototypeId}-neg-${i}`;
+                item.innerHTML = `<input type="checkbox" name="${group.prototypeId}-neg" value="${i}" id="${id}"><label for="${id}">${text}</label>`;
+                colB.appendChild(item);
+            });
+            row.appendChild(colB);
+
+            div.appendChild(row);
+            container.appendChild(div);
+        });
+        updateModeTip();
+    }
+
+    function updateModeTip() {
+        const tip = document.getElementById('modeTip');
+        tip.textContent = currentMode === 'self'
+            ? '◈ 请根据「你对自己的看法」勾选（A积极 / B消极）'
+            : '◈ 请根据「你对 TA 的看法」勾选（A积极 / B消极）';
+    }
+
+    // ============================================================
+    // 4. 计分
+    // ============================================================
+    function calculateScores() {
+        const scores = {};
+        PROTOTYPES.forEach(p => scores[p.id] = { pos: 0, neg: 0 });
+
+        document.querySelectorAll('#testForm input[type="checkbox"]').forEach(cb => {
+            if (!cb.checked) return;
+            const parts = cb.name.split('-');
+            const protoId = parts[0];
+            const type = parts[1];
+            if (scores[protoId]) {
+                if (type === 'pos') scores[protoId].pos += 1;
+                else if (type === 'neg') scores[protoId].neg += 1;
+            }
+        });
+
+        return PROTOTYPES.map(p => ({
+            id: p.id,
+            name: p.name,
+            hero: p.hero,
+            plot: p.plot,
+            gift: p.gift,
+            description: p.description,
+            pos: scores[p.id].pos,
+            neg: scores[p.id].neg,
+            total: scores[p.id].pos + scores[p.id].neg
+        }));
+    }
+
+    // ============================================================
+    // 5. 绘图
+    // ============================================================
+    function drawChart(scores) {
+        const canvas = document.getElementById('chartCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const pad = { top: 28, bottom: 32, left: 44, right: 20 };
+        const chartW = W - pad.left - pad.right;
+        const chartH = H - pad.top - pad.bottom;
+        const unitH = chartH / 8;
+        const midY = pad.top + chartH / 2;
+
+        const count = scores.length;
+        const gap = 20;
+        const barW = (chartW - gap * (count + 1)) / count;
+
+        ctx.strokeStyle = '#e8e8e8';
+        ctx.lineWidth = 0.5;
+        ctx.setLineDash([2, 4]);
+        for (let v = -4; v <= 4; v++) {
+            const y = midY - v * unitH;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(W - pad.right, y);
+            ctx.stroke();
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            if (v !== 0) ctx.fillText(v, pad.left - 6, y);
+            else ctx.fillText('0', pad.left - 6, y);
+        }
+        ctx.setLineDash([]);
+
+        const colorPos = '#0a0a0a';
+        const colorNeg = '#d40000';
+        const colorConn = '#333333';
+
+        scores.forEach((s, idx) => {
+            const x = pad.left + gap + idx * (barW + gap);
+            const posH = s.pos * unitH;
+            const negH = s.neg * unitH;
+            const topY = midY - posH;
+            const bottomY = midY + negH;
+
+            if (posH < 0.5 && negH < 0.5) {
+                ctx.fillStyle = '#d0d0d0';
+                ctx.fillRect(x, midY - 1.5, barW, 3);
+                ctx.fillStyle = '#999';
+                ctx.font = '9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('0', x + barW/2, midY + 4);
+                ctx.fillStyle = '#0a0a0a';
+                ctx.font = '10px sans-serif';
+                ctx.textBaseline = 'top';
+                ctx.fillText(s.name, x + barW/2, bottomY + 6);
+                return;
+            }
+
+            const grad = ctx.createLinearGradient(0, topY, 0, bottomY);
+            grad.addColorStop(0, colorPos);
+            grad.addColorStop(0.45, colorConn);
+            grad.addColorStop(0.55, '#660000');
+            grad.addColorStop(1, colorNeg);
+            ctx.fillStyle = grad;
+
+            ctx.fillRect(x, topY, barW, bottomY - topY);
+            ctx.strokeStyle = '#0a0a0a';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(x, topY, barW, bottomY - topY);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (s.pos > 0) ctx.fillText(`+${s.pos}`, x + barW/2, midY - posH/2);
+            if (s.neg > 0) ctx.fillText(`-${s.neg}`, x + barW/2, midY + negH/2);
+
+            ctx.fillStyle = '#0a0a0a';
+            ctx.font = '10px sans-serif';
+            ctx.textBaseline = 'top';
+            ctx.fillText(s.name, x + barW/2, bottomY + 6);
+        });
+
+        ctx.fillStyle = '#0a0a0a';
+        ctx.font = '9px sans-serif';
+        ctx.textBaseline = 'bottom';
+        ctx.textAlign = 'left';
+        ctx.fillText('▲ 积极', pad.left + 2, midY - 4);
+        ctx.fillStyle = '#d40000';
+        ctx.textBaseline = 'top';
+        ctx.fillText('▼ 消极', pad.left + 2, midY + 4);
+    }
+
+    // ============================================================
+    // 6. 展示（核心改动：灵活并列显示）
+    // ============================================================
+    function displayResults(scores) {
+        // ---- 第一步：找出最高分（先按综合排，再按积极分排） ----
+        const sorted = [...scores].sort((a, b) => {
+            if (b.total !== a.total) return b.total - a.total;
+            if (b.pos !== a.pos) return b.pos - a.pos;
+            return a.neg - b.neg;
+        });
+        const topScore = sorted[0];
+
+        // ---- 第二步：找出所有与 topScore 完全并列的原型（总分、积极、消极全相同） ----
+        const ties = scores.filter(s =>
+            s.total === topScore.total &&
+            s.pos === topScore.pos &&
+            s.neg === topScore.neg
+        );
+
+        // ---- 第三步：决定展示哪个/哪些原型 ----
+        const isTie = ties.length > 1;
+
+        // 更新英雄展示区
+        const heroNameEl = document.getElementById('heroName');
+        const traitEl = document.getElementById('heroTrait');
+        const descEl = document.getElementById('heroDesc');
+
+        if (topScore.total === 0) {
+            heroNameEl.innerHTML = '◈ 请先完成测试';
+            traitEl.textContent = '尚未勾选任何特质';
+            descEl.textContent = '返回上方勾选后，即可解锁你的原型';
+        } else if (isTie) {
+            // ★ 并列情况：展示所有并列原型的名称
+            const names = ties.map(t => t.name).join(' · ');
+            heroNameEl.innerHTML = `✦ <strong>${names}</strong>`;
+            // 英雄特质：取第一个并列原型的英雄特质（他们相同）
+            traitEl.textContent = ties[0].hero;
+            descEl.textContent = `并列主导 · 综合 ${topScore.total} 分（积极 ${topScore.pos} / 消极 ${topScore.neg}）`;
+        } else {
+            // 单一主导
+            heroNameEl.innerHTML = `✦ <strong>${topScore.name}</strong>`;
+            traitEl.textContent = topScore.hero;
+            descEl.textContent = `综合 ${topScore.total} 分（积极 ${topScore.pos} / 消极 ${topScore.neg}）`;
+        }
+
+        // ---- 第四步：渲染解读区 ----
+        const readingContent = document.getElementById('readingContent');
+        if (topScore.total === 0) {
+            readingContent.innerHTML = '请先完成题目勾选，即可解锁专属于你的原型深度解读。';
+        } else if (isTie) {
+            // ★ 并列解读：逐条显示所有并列原型的完整解读
+            let html = `<div style="font-family:var(--font-sans);font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text-secondary);margin-bottom:12px;text-transform:uppercase;">✦ 你的并列原型深度解读（请分别阅读以下章节）</div>`;
+            ties.forEach((t, index) => {
+                html += `
+                    <div class="proto-block">
+                        <span class="proto-name">${index + 1}. ${t.name}</span>
+                        <span class="plot-line">▸ ${t.plot}</span>
+                        <span class="gift-line">✦ 天赋：${t.gift}</span>
+                        <span class="highlight-red">✦</span> ${t.description}
+                    </div>
+                `;
+            });
+            readingContent.innerHTML = html;
+        } else {
+            // 单一解读
+            readingContent.innerHTML = `
+                <span class="plot-line">▸ ${topScore.plot}</span>
+                <span class="gift-line">✦ 天赋：${topScore.gift}</span>
+                <span class="highlight-red">✦</span> ${topScore.description}
+            `;
+        }
+
+        // ---- 第五步：图表和表格（不变） ----
+        drawChart(scores);
+
+        const tbody = document.getElementById('scoreBody');
+        tbody.innerHTML = '';
+        scores.forEach(s => {
+            const tr = document.createElement('tr');
+            // 如果该原型在并列列表中，高亮
+            const isHighlight = ties.some(t => t.id === s.id);
+            if (isHighlight) tr.className = 'highlight-row';
+            tr.innerHTML = `<td>${s.name}</td><td>${s.pos}</td><td>${s.neg}</td><td>${s.total}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('resultArea').classList.add('show');
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ============================================================
+    // 7. 事件
+    // ============================================================
+    document.getElementById('testForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        displayResults(calculateScores());
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        document.querySelectorAll('#testForm input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('resultArea').classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentMode = this.dataset.mode;
+            document.querySelectorAll('#testForm input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('resultArea').classList.remove('show');
+            updateModeTip();
+        });
+    });
+
+    renderQuestions();
+</script>
+</body>
+</html>
